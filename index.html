@@ -1,34 +1,117 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <link type="text/css" rel="stylesheet" href="style.css"/>
-  </head>
-  <body>
-    <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventario de Tienda</title>
     <style>
+        /* Estilos globales */
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            background-color: #f7f7f7;
         }
 
         input, button {
             margin: 5px;
-            padding: 5px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
         }
 
+        button {
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        /* Estilos del contenedor del inventario */
+        #inventario {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Estilos de cada artículo */
         .articulo {
-            margin: 10px 0;
-            padding: 10px;
-            border: 1px solid #aaa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: white;
             border-radius: 5px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .articulo span {
+            font-size: 18px;
         }
 
         .cantidad {
             font-weight: bold;
+            margin: 0 10px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Estilos de los botones */
+        .buttons button {
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            padding: 0;
+        }
+
+        /* Media Queries para hacer la página responsive */
+        @media (max-width: 768px) {
+            body {
+                margin: 10px;
+            }
+
+            .articulo {
+                flex-direction: column;
+                align-items: flex-start;
+                text-align: center;
+            }
+
+            .buttons {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .articulo span {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .articulo {
+                padding: 10px;
+            }
+
+            .buttons button {
+                width: 35px;
+                height: 35px;
+                font-size: 18px;
+            }
+
+            .cantidad {
+                font-size: 18px;
+            }
         }
     </style>
 </head>
@@ -82,10 +165,14 @@
                 }
             };
 
+            const buttonsDiv = document.createElement('div');
+            buttonsDiv.className = 'buttons';
+            buttonsDiv.appendChild(btnSumar);
+            buttonsDiv.appendChild(btnRestar);
+
             div.appendChild(nombreElem);
             div.appendChild(cantidadElem);
-            div.appendChild(btnSumar);
-            div.appendChild(btnRestar);
+            div.appendChild(buttonsDiv);
 
             inventario.appendChild(div);
 
@@ -96,8 +183,4 @@
     </script>
 
 </body>
-</html>
-
-    <script type="module" src="script.js"></script>
-  </body>
 </html>
