@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventario de Tienda</title>
+
     <style>
         /* Estilos globales */
         body {
@@ -66,14 +67,27 @@
         .buttons {
             display: flex;
             gap: 10px;
+            align-items: center;
         }
 
-        /* Estilos de los botones */
         .buttons button {
             width: 40px;
             height: 40px;
             font-size: 20px;
             padding: 0;
+        }
+
+        /* Estilo de la papelera (emoticono) */
+        .papelera {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #f44336;
+        }
+
+        .papelera:hover {
+            color: #d32f2f;
         }
 
         /* Media Queries para hacer la página responsive */
@@ -126,21 +140,18 @@
     <div id="inventario"></div>
 
     <script>
-        function agregarArticulo() {
-            const nombre = document.getElementById('nombre').value.trim();
-            const cantidadInicial = parseInt(document.getElementById('cantidad').value);
+        // Cargar el inventario guardado del localStorage
+        function cargarInventario() {
+            const inventario = JSON.parse(localStorage.getItem('inventario')) || [];
+            inventario.forEach(item => mostrarArticulo(item.nombre, item.cantidad));
+        }
 
-            if (!nombre || isNaN(cantidadInicial)) {
-                alert('Por favor, ingresa un nombre y una cantidad válida.');
-                return;
-            }
-
+        // Mostrar artículo en la página
+        function mostrarArticulo(nombre, cantidad) {
             const inventario = document.getElementById('inventario');
 
             const div = document.createElement('div');
             div.className = 'articulo';
-
-            let cantidad = cantidadInicial;
 
             const nombreElem = document.createElement('span');
             nombreElem.textContent = nombre + ': ';
@@ -154,6 +165,7 @@
             btnSumar.onclick = () => {
                 cantidad++;
                 cantidadElem.textContent = cantidad;
+                guardarInventario();
             };
 
             const btnRestar = document.createElement('button');
@@ -162,24 +174,70 @@
                 if (cantidad > 0) {
                     cantidad--;
                     cantidadElem.textContent = cantidad;
+                    guardarInventario();
                 }
+            };
+
+            const btnPapelera = document.createElement('button');
+            btnPapelera.className = 'papelera';
+            btnPapelera.textContent = '🗑️';  // Emoticono de papelera
+            btnPapelera.onclick = () => {
+                div.remove();
+                eliminarArticulo(nombre);
             };
 
             const buttonsDiv = document.createElement('div');
             buttonsDiv.className = 'buttons';
             buttonsDiv.appendChild(btnSumar);
             buttonsDiv.appendChild(btnRestar);
+            buttonsDiv.appendChild(btnPapelera);
 
             div.appendChild(nombreElem);
             div.appendChild(cantidadElem);
             div.appendChild(buttonsDiv);
 
             inventario.appendChild(div);
+        }
+
+        // Guardar inventario en localStorage
+        function guardarInventario() {
+            const inventario = [];
+            const articulos = document.querySelectorAll('.articulo');
+            articulos.forEach(articulo => {
+                const nombre = articulo.querySelector('span').textContent.replace(':', '').trim();
+                const cantidad = parseInt(articulo.querySelector('.cantidad').textContent);
+                inventario.push({ nombre, cantidad });
+            });
+            localStorage.setItem('inventario', JSON.stringify(inventario));
+        }
+
+        // Eliminar artículo del inventario en localStorage
+        function eliminarArticulo(nombre) {
+            const inventario = JSON.parse(localStorage.getItem('inventario')) || [];
+            const nuevoInventario = inventario.filter(item => item.nombre !== nombre);
+            localStorage.setItem('inventario', JSON.stringify(nuevoInventario));
+        }
+
+        // Agregar artículo al inventario
+        function agregarArticulo() {
+            const nombre = document.getElementById('nombre').value.trim();
+            const cantidadInicial = parseInt(document.getElementById('cantidad').value);
+
+            if (!nombre || isNaN(cantidadInicial)) {
+                alert('Por favor, ingresa un nombre y una cantidad válida.');
+                return;
+            }
+
+            mostrarArticulo(nombre, cantidadInicial);
+            guardarInventario();
 
             // Limpiar inputs
             document.getElementById('nombre').value = '';
             document.getElementById('cantidad').value = '';
         }
+
+        // Cargar inventario al cargar la página
+        window.onload = cargarInventario;
     </script>
 
 </body>
