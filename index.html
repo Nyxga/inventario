@@ -62,6 +62,8 @@
         .cantidad {
             font-weight: bold;
             margin: 0 10px;
+            width: 60px;
+            text-align: center;
         }
 
         .buttons {
@@ -156,24 +158,31 @@
             const nombreElem = document.createElement('span');
             nombreElem.textContent = nombre + ': ';
 
-            const cantidadElem = document.createElement('span');
+            const cantidadElem = document.createElement('input');
             cantidadElem.className = 'cantidad';
-            cantidadElem.textContent = cantidad;
+            cantidadElem.type = 'number';
+            cantidadElem.value = cantidad;
+            cantidadElem.min = 0;
+            cantidadElem.onchange = () => {
+                const nuevaCantidad = parseInt(cantidadElem.value);
+                if (!isNaN(nuevaCantidad)) {
+                    guardarInventario();
+                }
+            };
 
             const btnSumar = document.createElement('button');
             btnSumar.textContent = '+';
             btnSumar.onclick = () => {
-                cantidad++;
-                cantidadElem.textContent = cantidad;
+                cantidadElem.value = parseInt(cantidadElem.value) + 1;
                 guardarInventario();
             };
 
             const btnRestar = document.createElement('button');
             btnRestar.textContent = '−';
             btnRestar.onclick = () => {
-                if (cantidad > 0) {
-                    cantidad--;
-                    cantidadElem.textContent = cantidad;
+                const cantidadActual = parseInt(cantidadElem.value);
+                if (cantidadActual > 0) {
+                    cantidadElem.value = cantidadActual - 1;
                     guardarInventario();
                 }
             };
@@ -205,7 +214,7 @@
             const articulos = document.querySelectorAll('.articulo');
             articulos.forEach(articulo => {
                 const nombre = articulo.querySelector('span').textContent.replace(':', '').trim();
-                const cantidad = parseInt(articulo.querySelector('.cantidad').textContent);
+                const cantidad = parseInt(articulo.querySelector('.cantidad').value);
                 inventario.push({ nombre, cantidad });
             });
             localStorage.setItem('inventario', JSON.stringify(inventario));
