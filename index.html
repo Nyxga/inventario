@@ -92,7 +92,7 @@
             color: #d32f2f;
         }
 
-        /* Media Queries para hacer la página responsive */
+        /* Media Queries para hacerlo más responsive */
         @media (max-width: 768px) {
             body {
                 margin: 10px;
@@ -100,29 +100,43 @@
 
             .articulo {
                 flex-direction: column;
-                align-items: flex-start;
-                text-align: center;
+                align-items: stretch;
+                text-align: left;
+                gap: 10px;
+            }
+
+            .articulo span {
+                font-size: 16px;
+                font-weight: bold;
+            }
+
+            .cantidad {
+                width: 100%;
+                font-size: 18px;
             }
 
             .buttons {
                 width: 100%;
                 justify-content: space-between;
             }
-
-            .articulo span {
-                font-size: 16px;
-            }
         }
 
         @media (max-width: 480px) {
             .articulo {
-                padding: 10px;
+                padding: 12px;
+                gap: 8px;
+            }
+
+            .buttons {
+                flex-wrap: wrap;
+                gap: 8px;
+                justify-content: center;
             }
 
             .buttons button {
-                width: 35px;
-                height: 35px;
-                font-size: 18px;
+                width: 45px;
+                height: 45px;
+                font-size: 20px;
             }
 
             .cantidad {
@@ -254,47 +268,47 @@
             document.getElementById('cantidad').value = '';
         }
 
-// Cargar desde Excel (primera + tercera columna como nombre, cantidad = 0)
-function cargarDesdeExcel() {
-    const input = document.getElementById('excelFile');
-    if (!input.files.length) {
-        alert("Por favor selecciona un archivo Excel");
-        return;
-    }
-
-    const file = input.files[0];
-    const reader = new FileReader();
-
-    reader.onload = function(e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-
-        // Tomamos la primera hoja
-        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-
-        // Limpiamos el inventario actual
-        document.getElementById('inventario').innerHTML = "";
-
-        // Recorremos filas (usamos columna 1 + columna 3)
-        rows.forEach((row, index) => {
-            if ((!row[0] && !row[2]) || index === 0) return; // saltar vacías o cabecera
-
-            const col1 = row[0] ? String(row[0]).trim() : "";
-            const col3 = row[2] ? String(row[2]).trim() : "";
-            const nombre = (col1 + " " + col3).trim();
-            const cantidad = 0; // siempre cantidad inicial = 0
-
-            if (nombre) {
-                mostrarArticulo(nombre, cantidad);
+        // Cargar desde Excel (columna 1 + columna 3 como nombre, cantidad = 0)
+        function cargarDesdeExcel() {
+            const input = document.getElementById('excelFile');
+            if (!input.files.length) {
+                alert("Por favor selecciona un archivo Excel");
+                return;
             }
-        });
 
-        guardarInventario(); // Guardar en localStorage
-    };
+            const file = input.files[0];
+            const reader = new FileReader();
 
-    reader.readAsArrayBuffer(file);
-}
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+
+                // Tomamos la primera hoja
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+                // Limpiamos el inventario actual
+                document.getElementById('inventario').innerHTML = "";
+
+                // Recorremos filas (usamos columna 1 + columna 3)
+                rows.forEach((row, index) => {
+                    if ((!row[0] && !row[2]) || index === 0) return; // saltar vacías o cabecera
+
+                    const col1 = row[0] ? String(row[0]).trim() : "";
+                    const col3 = row[2] ? String(row[2]).trim() : "";
+                    const nombre = (col1 + " " + col3).trim();
+                    const cantidad = 0; // siempre cantidad inicial = 0
+
+                    if (nombre) {
+                        mostrarArticulo(nombre, cantidad);
+                    }
+                });
+
+                guardarInventario(); // Guardar en localStorage
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
 
         // Cargar inventario al cargar la página
         window.onload = cargarInventario;
