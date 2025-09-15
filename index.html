@@ -14,7 +14,7 @@
         }
 
         input, button {
-            margin: 5px;
+            margin: 5px 0;
             padding: 10px;
             font-size: 16px;
             border-radius: 5px;
@@ -25,6 +25,7 @@
             cursor: pointer;
             background-color: #4CAF50;
             color: white;
+            border: none;
         }
 
         button:hover {
@@ -36,14 +37,14 @@
             color: #333;
         }
 
-        /* Estilos del contenedor del inventario */
+        /* Contenedor inventario */
         #inventario {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
 
-        /* Estilos de cada artículo */
+        /* Artículo */
         .articulo {
             display: flex;
             justify-content: space-between;
@@ -53,23 +54,30 @@
             border-radius: 5px;
             border: 1px solid #ddd;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            flex-wrap: wrap;
         }
 
         .articulo span {
             font-size: 18px;
+            word-break: break-word;
+            flex: 1 1 100%;
         }
 
+        /* Cantidad */
         .cantidad {
             font-weight: bold;
-            margin: 0 10px;
-            width: 60px;
+            margin: 5px 0;
             text-align: center;
+            flex: 1 1 auto;
+            min-width: 60px;
         }
 
+        /* Botones */
         .buttons {
             display: flex;
             gap: 10px;
-            align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
 
         .buttons button {
@@ -79,7 +87,7 @@
             padding: 0;
         }
 
-        /* Estilo de la papelera (emoticono) */
+        /* Papelera */
         .papelera {
             background-color: transparent;
             border: none;
@@ -92,12 +100,8 @@
             color: #d32f2f;
         }
 
-        /* Media Queries para hacerlo más responsive */
+        /* Media queries */
         @media (max-width: 768px) {
-            body {
-                margin: 10px;
-            }
-
             .articulo {
                 flex-direction: column;
                 align-items: stretch;
@@ -105,31 +109,13 @@
                 gap: 10px;
             }
 
-            .articulo span {
-                font-size: 16px;
-                font-weight: bold;
-            }
-
-            .cantidad {
-                width: 100%;
-                font-size: 18px;
-            }
-
             .buttons {
-                width: 100%;
-                justify-content: space-between;
+                justify-content: flex-start;
             }
         }
 
         @media (max-width: 480px) {
-            .articulo {
-                padding: 12px;
-                gap: 8px;
-            }
-
             .buttons {
-                flex-wrap: wrap;
-                gap: 8px;
                 justify-content: center;
             }
 
@@ -140,7 +126,11 @@
             }
 
             .cantidad {
-                font-size: 18px;
+                font-size: 16px;
+            }
+
+            .articulo span {
+                font-size: 16px;
             }
         }
     </style>
@@ -212,7 +202,7 @@
 
             const btnPapelera = document.createElement('button');
             btnPapelera.className = 'papelera';
-            btnPapelera.textContent = '🗑️';  // Emoticono de papelera
+            btnPapelera.textContent = '🗑️';
             btnPapelera.onclick = () => {
                 div.remove();
                 eliminarArticulo(nombre);
@@ -263,12 +253,11 @@
             mostrarArticulo(nombre, cantidadInicial);
             guardarInventario();
 
-            // Limpiar inputs
             document.getElementById('nombre').value = '';
             document.getElementById('cantidad').value = '';
         }
 
-        // Cargar desde Excel (columna 1 + columna 3 como nombre, cantidad = 0)
+        // Cargar desde Excel
         function cargarDesdeExcel() {
             const input = document.getElementById('excelFile');
             if (!input.files.length) {
@@ -283,34 +272,30 @@
                 const data = new Uint8Array(e.target.result);
                 const workbook = XLSX.read(data, { type: 'array' });
 
-                // Tomamos la primera hoja
                 const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                 const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
 
-                // Limpiamos el inventario actual
                 document.getElementById('inventario').innerHTML = "";
 
-                // Recorremos filas (usamos columna 1 + columna 3)
                 rows.forEach((row, index) => {
-                    if ((!row[0] && !row[2]) || index === 0) return; // saltar vacías o cabecera
+                    if ((!row[0] && !row[2]) || index === 0) return;
 
                     const col1 = row[0] ? String(row[0]).trim() : "";
                     const col3 = row[2] ? String(row[2]).trim() : "";
                     const nombre = (col1 + " " + col3).trim();
-                    const cantidad = 0; // siempre cantidad inicial = 0
+                    const cantidad = 0;
 
                     if (nombre) {
                         mostrarArticulo(nombre, cantidad);
                     }
                 });
 
-                guardarInventario(); // Guardar en localStorage
+                guardarInventario();
             };
 
             reader.readAsArrayBuffer(file);
         }
 
-        // Cargar inventario al cargar la página
         window.onload = cargarInventario;
     </script>
 
