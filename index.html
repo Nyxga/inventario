@@ -254,46 +254,47 @@
             document.getElementById('cantidad').value = '';
         }
 
-        // Cargar desde Excel (solo primera columna, cantidad = 0)
-        function cargarDesdeExcel() {
-            const input = document.getElementById('excelFile');
-            if (!input.files.length) {
-                alert("Por favor selecciona un archivo Excel");
-                return;
+function cargarDesdeExcel() {
+    const input = document.getElementById('excelFile');
+    if (!input.files.length) {
+        alert("Por favor selecciona un archivo Excel");
+        return;
+    }
+
+    const file = input.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        // Tomamos la primera hoja
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+        // Limpiamos el inventario actual
+        document.getElementById('inventario').innerHTML = "";
+
+        // Recorremos filas (usamos primera + segunda columna)
+        rows.forEach((row, index) => {
+            if ((!row[0] && !row[1]) || index === 0) return; // saltar vacías o cabecera
+
+            const col1 = row[0] ? String(row[0]).trim() : "";
+            const col2 = row[1] ? String(row[1]).trim() : "";
+            const nombre = (col1 + " " + col2).trim();
+            const cantidad = 0; // siempre cantidad inicial = 0
+
+            if (nombre) {
+                mostrarArticulo(nombre, cantidad);
             }
+        });
 
-            const file = input.files[0];
-            const reader = new FileReader();
+        guardarInventario(); // Guardar en localStorage
+    };
 
-            reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
+    reader.readAsArrayBuffer(file);
+}
 
-                // Tomamos la primera hoja
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-
-                // Limpiamos el inventario actual
-                document.getElementById('inventario').innerHTML = "";
-
-                // Recorremos filas (solo usamos la primera columna)
-                rows.forEach((row, index) => {
-                    if (!row[0]) return; // si está vacío, lo saltamos
-                    if (index === 0) return; // saltamos cabecera si la hubiera
-
-                    const nombre = String(row[0]).trim();
-                    const cantidad = 0; // siempre cantidad inicial = 0
-
-                    if (nombre) {
-                        mostrarArticulo(nombre, cantidad);
-                    }
-                });
-
-                guardarInventario(); // Guardar en localStorage
-            };
-
-            reader.readAsArrayBuffer(file);
-        }
 
         // Cargar inventario al cargar la página
         window.onload = cargarInventario;
