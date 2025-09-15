@@ -254,6 +254,7 @@
             document.getElementById('cantidad').value = '';
         }
 
+// Cargar desde Excel (primera + tercera columna como nombre, cantidad = 0)
 function cargarDesdeExcel() {
     const input = document.getElementById('excelFile');
     if (!input.files.length) {
@@ -275,13 +276,13 @@ function cargarDesdeExcel() {
         // Limpiamos el inventario actual
         document.getElementById('inventario').innerHTML = "";
 
-        // Recorremos filas (usamos primera + segunda columna)
+        // Recorremos filas (usamos columna 1 + columna 3)
         rows.forEach((row, index) => {
-            if ((!row[0] && !row[1]) || index === 0) return; // saltar vacías o cabecera
+            if ((!row[0] && !row[2]) || index === 0) return; // saltar vacías o cabecera
 
             const col1 = row[0] ? String(row[0]).trim() : "";
-            const col2 = row[1] ? String(row[1]).trim() : "";
-            const nombre = (col1 + " " + col2).trim();
+            const col3 = row[2] ? String(row[2]).trim() : "";
+            const nombre = (col1 + " " + col3).trim();
             const cantidad = 0; // siempre cantidad inicial = 0
 
             if (nombre) {
@@ -294,7 +295,6 @@ function cargarDesdeExcel() {
 
     reader.readAsArrayBuffer(file);
 }
-
 
         // Cargar inventario al cargar la página
         window.onload = cargarInventario;
