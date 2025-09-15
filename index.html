@@ -139,7 +139,16 @@
     <input type="number" id="cantidad" placeholder="Cantidad inicial" min="0">
     <button onclick="agregarArticulo()">Agregar artículo</button>
 
+    <br><br>
+
+    <!-- Botón para cargar Excel -->
+    <input type="file" id="excelFile" accept=".xls,.xlsx">
+    <button onclick="cargarDesdeExcel()">Cargar Excel</button>
+
     <div id="inventario"></div>
+
+    <!-- Librería SheetJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <script>
         // Cargar el inventario guardado del localStorage
@@ -243,6 +252,47 @@
             // Limpiar inputs
             document.getElementById('nombre').value = '';
             document.getElementById('cantidad').value = '';
+        }
+
+        // Cargar desde Excel (solo primera columna, cantidad = 0)
+        function cargarDesdeExcel() {
+            const input = document.getElementById('excelFile');
+            if (!input.files.length) {
+                alert("Por favor selecciona un archivo Excel");
+                return;
+            }
+
+            const file = input.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+
+                // Tomamos la primera hoja
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+                // Limpiamos el inventario actual
+                document.getElementById('inventario').innerHTML = "";
+
+                // Recorremos filas (solo usamos la primera columna)
+                rows.forEach((row, index) => {
+                    if (!row[0]) return; // si está vacío, lo saltamos
+                    if (index === 0) return; // saltamos cabecera si la hubiera
+
+                    const nombre = String(row[0]).trim();
+                    const cantidad = 0; // siempre cantidad inicial = 0
+
+                    if (nombre) {
+                        mostrarArticulo(nombre, cantidad);
+                    }
+                });
+
+                guardarInventario(); // Guardar en localStorage
+            };
+
+            reader.readAsArrayBuffer(file);
         }
 
         // Cargar inventario al cargar la página
